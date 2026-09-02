@@ -26,13 +26,17 @@ Panel {
   readonly property var metricOrder: ["cpu", "memory", "swap", "disk", "temp", "network"]
 
   // ------------------------------------------------------- setting access
-  // Toggling from the popup should redraw immediately rather than waiting for
-  // shell.json to round-trip, so a local override shadows `settings` until the
-  // reloaded config arrives.
-  property var overrideSettings: null
-  onSettingsChanged: overrideSettings = null
+  // Read settings from the live shell config rather than from the `settings`
+  // object injected at load. A toggle persisted through mutateShellConfig
+  // updates shellConfig immediately, so the bar redraws at once; the injected
+  // copy is only a fallback, and caching it goes stale whenever the object
+  // keeps its identity across a reload.
+  readonly property var liveEntry: {
+    var config = (bar && bar.shell) ? bar.shell.shellConfig : null
+    return config ? findEntry(config) : null
+  }
 
-  readonly property var effective: overrideSettings !== null ? overrideSettings : (settings || ({}))
+  readonly property var effective: liveEntry !== null ? liveEntry : (settings || ({}))
 
   function cfg(name, fallback) {
     var value = effective ? effective[name] : undefined
@@ -96,7 +100,13 @@ Panel {
   readonly property string alertStyle: String(cfg("alertStyle", "Color and bold") || "Color and bold")
   readonly property int intervalSec: Math.max(1, asInt(cfg("intervalSec", 3), 3))
 
-  readonly property color alertColor: bar && bar.urgent ? bar.urgent : Color.urgent
+  // Color.urgent follows the theme, which is usually what you want. Monochrome
+  // themes define a grey `red`, though, leaving an alert nearly invisible, so
+  // `alertColor` can name an explicit color instead. The bar's own `urgent`
+  // token is deliberately not used: it maps to bar.active, an accent rather
+  // than an alarm.
+  readonly property string alertColorOverride: String(cfg("alertColor", "") || "")
+  readonly property color alertColor: alertColorOverride !== "" ? alertColorOverride : Color.urgent
   readonly property bool alertColors: alertStyle.indexOf("Color") >= 0
   readonly property bool alertBold: alertStyle.indexOf("old") >= 0
   readonly property bool alertDot: alertStyle.indexOf("dot") >= 0
@@ -145,11 +155,6 @@ Panel {
   }
 
   function applySettings(patch) {
-    var merged = {}
-    for (var a in root.effective) merged[a] = root.effective[a]
-    for (var b in patch) merged[b] = patch[b]
-    root.overrideSettings = merged
-
     if (bar && bar.shell && typeof bar.shell.mutateShellConfig === "function") {
       bar.shell.mutateShellConfig(function(config) {
         var entry = root.findEntry(config)
@@ -177,13 +182,6 @@ Panel {
     return asList(raw, [])
   }
 
-  function noteOptimistic(patch) {
-    var merged = {}
-    for (var a in root.effective) merged[a] = root.effective[a]
-    for (var b in patch) merged[b] = patch[b]
-    root.overrideSettings = merged
-  }
-
   // `mutate` receives the currently stored metrics and returns a settings
   // patch. Reading the stored list inside the mutation keeps every caller --
   // a popup click or an IPC call from any instance -- working off one truth.
@@ -195,7 +193,6 @@ Panel {
         var patch = mutate(root.entryMetrics(entry))
         if (!patch) return
         for (var k in patch) entry[k] = patch[k]
-        root.noteOptimistic(patch)
       })
       return
     }

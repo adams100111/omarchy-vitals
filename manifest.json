@@ -37,7 +37,8 @@
       "swapWarnPct": 50,
       "diskWarnPct": 85,
       "tempWarnC": 80,
-      "alertStyle": "Color and bold"
+      "alertStyle": "Color and bold",
+      "alertColor": ""
     },
     "schema": [
       {
@@ -127,6 +128,13 @@
         ],
         "defaultValue": "Color and bold",
         "description": "How a resource looks once it crosses its threshold below."
+      },
+      {
+        "key": "alertColor",
+        "type": "string",
+        "label": "Alert color",
+        "defaultValue": "",
+        "description": "Color used for a breached threshold, e.g. #de6145. Leave empty to follow the theme; set it on monochrome themes, whose grey 'red' makes alerts hard to see."
       },
       {
         "key": "cpuWarnPct",

@@ -7,6 +7,19 @@ breakdown, and click any row there to pin or hide that resource.
 
 Requires Omarchy 4 (Quattro) or newer.
 
+![The widget in the bar](docs/bar.png)
+
+Each resource you pick renders inline as an icon with its value and unit. When
+one crosses its threshold it switches to the alert style, so a problem is
+visible without opening anything:
+
+![A breached threshold](docs/alert.png)
+
+Click the widget for the full breakdown. Every resource is listed here whether
+or not it is in the bar, and clicking a row pins or hides it:
+
+![The detail popup](docs/popup.png)
+
 ## Install
 
 ```bash
@@ -62,11 +75,17 @@ hot-reloads on save), or with `omarchy bar set adams100111.vitals <key> <value>`
 | `showUnits` | bool | `true` | Append `%` / `°C`. |
 | `diskPath` | string | `/` | Which filesystem the inline disk readout tracks. |
 | `alertStyle` | enum | `Color and bold` | `Color`, `Bold`, `Color and bold`, or `Color and dot`. |
+| `alertColor` | string | `""` | Color for a breached threshold, e.g. `#de6145`. Empty follows the theme. |
 | `cpuWarnPct` | int | `85` | Alert once CPU is above this. |
 | `memoryWarnPct` | int | `85` | Alert once memory used is above this (85 = warn under 15% free). |
 | `swapWarnPct` | int | `50` | Alert once swap used is above this. |
 | `diskWarnPct` | int | `85` | Alert once disk used is above this (85 = warn under 15% free). |
 | `tempWarnC` | int | `80` | Alert once CPU temperature is above this. |
+
+On a monochrome theme the alert may be hard to see, because `Color.urgent`
+follows the theme's `red`, which such themes define as a grey. Set `alertColor`
+to a real color in that case, or use the `Color and dot` alert style, which
+marks a breached resource with a trailing dot regardless of palette.
 
 Example:
 
