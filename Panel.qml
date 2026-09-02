@@ -307,7 +307,7 @@ Panel {
 
       } else if (key === "memory") {
         var mem = root.pctOf(root.sample.memUsed, root.sample.memTotal)
-        out.push({ icon: "󰘚", text: root.fmtPct(mem), warn: mem >= root.warnAt("memoryWarnPct", 85) })
+        out.push({ icon: "󰍛", text: root.fmtPct(mem), warn: mem >= root.warnAt("memoryWarnPct", 85) })
 
       } else if (key === "swap") {
         var swap = root.pctOf(root.sample.swapUsed, root.sample.swapTotal)
