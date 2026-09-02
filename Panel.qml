@@ -563,10 +563,10 @@ Panel {
                 id: eye
                 anchors.left: parent.left
                 anchors.verticalCenter: parent.verticalCenter
-                // Eye when pinned to the bar, struck-through eye when hidden.
-                text: row.pinned ? "\uf06e" : "\uf070"
+                // Checked box when pinned to the bar, empty box when hidden.
+                text: row.pinned ? "\uf046" : "\uf096"
                 color: row.pinned ? (row.warn ? Color.urgent : Color.accent) : Color.muted
-                opacity: row.pinned ? 1.0 : 0.65
+                opacity: row.pinned ? 1.0 : 0.7
                 font.family: Style.font.family
                 font.pixelSize: Style.font.caption
               }

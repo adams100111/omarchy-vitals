@@ -24,8 +24,8 @@ omarchy bar move dev.vitals --section right
 Click the widget to open the popup. Every resource is listed there whether or
 not it is currently in the bar:
 
-- An open eye means it is pinned to the bar.
-- A struck-through eye, dimmed, means it is hidden.
+- A checked box means it is pinned to the bar.
+- An empty box, dimmed, means it is hidden.
 - Click a row to toggle it. Re-pinning restores it to its canonical position,
   so the bar order stays stable.
 - Clicking a filesystem row points the inline disk readout at that mount, or
