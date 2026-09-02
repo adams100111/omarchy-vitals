@@ -10,13 +10,13 @@ Requires Omarchy 4 (Quattro) or newer.
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/<you>/omarchy-vitals.git --enable
+omarchy plugin add https://github.com/adams100111/omarchy-vitals.git --enable
 ```
 
 Then place it wherever you like:
 
 ```bash
-omarchy bar move dev.vitals --section right
+omarchy bar move adams100111.vitals --section right
 ```
 
 ## Showing and hiding resources
@@ -37,13 +37,13 @@ reachable.
 The same toggles are scriptable, which makes them bindable to a key:
 
 ```bash
-omarchy-shell dev.vitals.metrics list            # what is pinned now
-omarchy-shell dev.vitals.metrics available       # every resource key
-omarchy-shell dev.vitals.metrics toggle cpu
-omarchy-shell dev.vitals.metrics show network
-omarchy-shell dev.vitals.metrics hide swap
-omarchy-shell dev.vitals.metrics mount /home     # point the disk readout elsewhere
-omarchy-shell dev.vitals open                    # open the popup
+omarchy-shell adams100111.vitals.metrics list            # what is pinned now
+omarchy-shell adams100111.vitals.metrics available       # every resource key
+omarchy-shell adams100111.vitals.metrics toggle cpu
+omarchy-shell adams100111.vitals.metrics show network
+omarchy-shell adams100111.vitals.metrics hide swap
+omarchy-shell adams100111.vitals.metrics mount /home     # point the disk readout elsewhere
+omarchy-shell adams100111.vitals open                    # open the popup
 ```
 
 Note that new IPC targets only register on a full `omarchy restart shell`;
@@ -52,7 +52,7 @@ editing plugin QML hot-reloads the widget but not its IPC surface.
 ## Settings
 
 Set these on the widget's entry in `~/.config/omarchy/shell.json` (it
-hot-reloads on save), or with `omarchy bar set dev.vitals <key> <value>`.
+hot-reloads on save), or with `omarchy bar set adams100111.vitals <key> <value>`.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -71,14 +71,14 @@ hot-reloads on save), or with `omarchy bar set dev.vitals <key> <value>`.
 Example:
 
 ```json
-{ "id": "dev.vitals",
+{ "id": "adams100111.vitals",
   "metrics": ["memory", "disk", "network"],
   "diskPath": "/home",
   "memoryWarnPct": 80,
   "alertStyle": "Color and bold" }
 ```
 
-`allowMultiple` is on, so a second `dev.vitals` entry can watch a different
+`allowMultiple` is on, so a second `adams100111.vitals` entry can watch a different
 mount in another bar section.
 
 ## Interaction

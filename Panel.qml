@@ -10,8 +10,8 @@ import qs.Ui
 Panel {
   id: root
 
-  moduleName: "dev.vitals"
-  ipcTarget: "dev.vitals"
+  moduleName: "adams100111.vitals"
+  ipcTarget: "adams100111.vitals"
 
   readonly property bool vertical: bar ? bar.vertical === true : false
   readonly property int barSize: bar ? bar.barSize : Style.space(26)
@@ -639,9 +639,9 @@ Panel {
   }
 
   // Scriptable equivalents of the popup toggles, so resources can be pinned
-  // from a keybinding: `omarchy-shell dev.vitals.metrics toggle cpu`.
+  // from a keybinding: `omarchy-shell adams100111.vitals.metrics toggle cpu`.
   IpcHandler {
-    target: "dev.vitals.metrics"
+    target: "adams100111.vitals.metrics"
 
     function list(): string {
       return JSON.stringify(root.storedMetrics())
