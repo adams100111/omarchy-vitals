@@ -303,32 +303,32 @@ Panel {
 
       if (key === "cpu") {
         var cpu = (root.sample.cpu || 0) / 10
-        out.push({ icon: "\uf2db", text: root.fmtPct(cpu), warn: cpu >= root.warnAt("cpuWarnPct", 85) })
+        out.push({ icon: "󰻠", text: root.fmtPct(cpu), warn: cpu >= root.warnAt("cpuWarnPct", 85) })
 
       } else if (key === "memory") {
         var mem = root.pctOf(root.sample.memUsed, root.sample.memTotal)
-        out.push({ icon: "\uf0e4", text: root.fmtPct(mem), warn: mem >= root.warnAt("memoryWarnPct", 85) })
+        out.push({ icon: "󰘚", text: root.fmtPct(mem), warn: mem >= root.warnAt("memoryWarnPct", 85) })
 
       } else if (key === "swap") {
         var swap = root.pctOf(root.sample.swapUsed, root.sample.swapTotal)
-        out.push({ icon: "\uf0ec", text: root.fmtPct(swap), warn: swap >= root.warnAt("swapWarnPct", 50) })
+        out.push({ icon: "󰓡", text: root.fmtPct(swap), warn: swap >= root.warnAt("swapWarnPct", 50) })
 
       } else if (key === "disk") {
         if (root.primaryDisk) {
           var disk = root.primaryDisk.pct / 10
-          out.push({ icon: "\uf0a0", text: root.fmtPct(disk), warn: disk >= root.warnAt("diskWarnPct", 85) })
+          out.push({ icon: "󰋊", text: root.fmtPct(disk), warn: disk >= root.warnAt("diskWarnPct", 85) })
         }
 
       } else if (key === "temp") {
         var t = root.sample.temp
         if (t !== undefined && t >= 0) {
-          out.push({ icon: "\uf2c7", text: Math.round(t) + (root.showUnits ? "°C" : ""),
+          out.push({ icon: "󰔏", text: Math.round(t) + (root.showUnits ? "°C" : ""),
                      warn: t >= root.warnAt("tempWarnC", 80) })
         }
 
       } else if (key === "network") {
-        out.push({ icon: "\uf019", text: root.fmtBytes(root.sample.rx || 0), warn: false })
-        out.push({ icon: "\uf093", text: root.fmtBytes(root.sample.tx || 0), warn: false })
+        out.push({ icon: "󰇚", text: root.fmtBytes(root.sample.rx || 0), warn: false })
+        out.push({ icon: "󰕒", text: root.fmtBytes(root.sample.tx || 0), warn: false })
       }
     }
     return out
@@ -463,7 +463,7 @@ Panel {
     id: placeholder
     anchors.centerIn: parent
     visible: root.chips.length === 0
-    text: "\uf2db"
+    text: "󰻠"
     color: root.barForeground
     font.family: Style.font.family
     font.pixelSize: Style.font.bodySmall
