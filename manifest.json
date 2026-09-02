@@ -1,0 +1,180 @@
+{
+  "schemaVersion": 1,
+  "id": "dev.vitals",
+  "name": "Vitals",
+  "version": "1.0.0",
+  "author": "Abdelrhman Eltahir",
+  "license": "MIT",
+  "description": "Pick which system resources show inline in the bar, each as an icon with its value and unit, highlighted when it crosses a threshold.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Vitals",
+    "description": "Inline CPU, memory, swap, disk, temperature and network readouts with per-resource alert thresholds; click a popup row to show or hide it.",
+    "category": "System",
+    "aliases": [
+      "vitals",
+      "resources",
+      "sysmon"
+    ],
+    "allowMultiple": true,
+    "defaultSection": "right",
+    "defaults": {
+      "metrics": [
+        "memory",
+        "disk"
+      ],
+      "intervalSec": 3,
+      "showIcons": true,
+      "showUnits": true,
+      "diskPath": "/",
+      "cpuWarnPct": 85,
+      "memoryWarnPct": 85,
+      "swapWarnPct": 50,
+      "diskWarnPct": 85,
+      "tempWarnC": 80,
+      "alertStyle": "Color and bold"
+    },
+    "schema": [
+      {
+        "key": "metrics",
+        "type": "multiselect",
+        "label": "Resources",
+        "description": "Which resources appear inline in the bar, in display order. You can also click any row in the widget's popup to show or hide it.",
+        "noSelectionText": "Nothing inline",
+        "placeholderText": "Search resources...",
+        "emptyText": "No resources",
+        "defaultValue": [
+          "memory",
+          "disk"
+        ],
+        "options": [
+          {
+            "value": "cpu",
+            "label": "CPU",
+            "description": "Processor load across all cores"
+          },
+          {
+            "value": "memory",
+            "label": "Memory",
+            "description": "RAM in use"
+          },
+          {
+            "value": "swap",
+            "label": "Swap",
+            "description": "Swap in use"
+          },
+          {
+            "value": "disk",
+            "label": "Disk",
+            "description": "Space used on the chosen filesystem"
+          },
+          {
+            "value": "temp",
+            "label": "Temperature",
+            "description": "CPU package temperature"
+          },
+          {
+            "value": "network",
+            "label": "Network",
+            "description": "Download and upload rate"
+          }
+        ]
+      },
+      {
+        "key": "intervalSec",
+        "type": "integer",
+        "label": "Update interval (seconds)",
+        "min": 1,
+        "max": 60,
+        "step": 1,
+        "defaultValue": 3
+      },
+      {
+        "key": "showIcons",
+        "type": "boolean",
+        "label": "Show icons",
+        "defaultValue": true,
+        "description": "Turn off for a text-only readout."
+      },
+      {
+        "key": "showUnits",
+        "type": "boolean",
+        "label": "Show units",
+        "defaultValue": true,
+        "description": "Turn off to save bar space; values stay in the popup."
+      },
+      {
+        "key": "diskPath",
+        "type": "string",
+        "label": "Disk mount point",
+        "defaultValue": "/",
+        "description": "Which filesystem the inline disk readout tracks. Every mount is still listed in the popup."
+      },
+      {
+        "key": "alertStyle",
+        "type": "enum",
+        "label": "Alert style",
+        "options": [
+          "Color",
+          "Bold",
+          "Color and bold",
+          "Color and dot"
+        ],
+        "defaultValue": "Color and bold",
+        "description": "How a resource looks once it crosses its threshold below."
+      },
+      {
+        "key": "cpuWarnPct",
+        "type": "integer",
+        "label": "Alert when CPU above (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 85
+      },
+      {
+        "key": "memoryWarnPct",
+        "type": "integer",
+        "label": "Alert when memory used above (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 85,
+        "description": "Set to 85 to be warned once free memory drops below 15%."
+      },
+      {
+        "key": "swapWarnPct",
+        "type": "integer",
+        "label": "Alert when swap used above (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 50
+      },
+      {
+        "key": "diskWarnPct",
+        "type": "integer",
+        "label": "Alert when disk used above (%)",
+        "min": 0,
+        "max": 100,
+        "step": 5,
+        "defaultValue": 85,
+        "description": "Set to 85 to be warned once free space drops below 15%."
+      },
+      {
+        "key": "tempWarnC",
+        "type": "integer",
+        "label": "Alert when temperature above (\u00b0C)",
+        "min": 40,
+        "max": 110,
+        "step": 5,
+        "defaultValue": 80
+      }
+    ]
+  }
+}

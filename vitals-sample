@@ -1,0 +1,89 @@
+#!/bin/bash
+# Emit one JSON line describing current system resources.
+# CPU and network are rates, so previous counters are kept in a state file.
+
+STATE="${XDG_RUNTIME_DIR:-/tmp}/omarchy-vitals.state"
+DISK_PATH="${1:-/}"
+
+read -r _ u n s i w irq sirq st _ </proc/stat
+cpu_total=$((u + n + s + i + w + irq + sirq + st))
+cpu_idle=$((i + w))
+
+net_rx=0 net_tx=0
+for dev in /sys/class/net/*; do
+  name=${dev##*/}
+  [[ $name == lo || $name == vir* || $name == docker* || $name == br-* ]] && continue
+  [[ -r $dev/statistics/rx_bytes ]] || continue
+  read -r rx <"$dev/statistics/rx_bytes"
+  read -r tx <"$dev/statistics/tx_bytes"
+  net_rx=$((net_rx + rx))
+  net_tx=$((net_tx + tx))
+done
+
+now=$(date +%s%3N)
+prev_total=0 prev_idle=0 prev_rx=0 prev_tx=0 prev_ms=0
+[[ -r $STATE ]] && read -r prev_total prev_idle prev_rx prev_tx prev_ms <"$STATE"
+printf '%s %s %s %s %s\n' "$cpu_total" "$cpu_idle" "$net_rx" "$net_tx" "$now" >"$STATE"
+
+cpu_pct=0
+dt=$((cpu_total - prev_total))
+if ((prev_total > 0 && dt > 0)); then
+  di=$((cpu_idle - prev_idle))
+  cpu_pct=$(((dt - di) * 1000 / dt))
+fi
+
+elapsed=$((now - prev_ms))
+rx_rate=0 tx_rate=0
+if ((prev_ms > 0 && elapsed > 0)); then
+  ((net_rx >= prev_rx)) && rx_rate=$(((net_rx - prev_rx) * 1000 / elapsed))
+  ((net_tx >= prev_tx)) && tx_rate=$(((net_tx - prev_tx) * 1000 / elapsed))
+fi
+
+# Memory and swap, in bytes, straight from /proc/meminfo (values are kB).
+mem_total=0 mem_avail=0 swap_total=0 swap_free=0
+while read -r key val _; do
+  case $key in
+    MemTotal:) mem_total=$((val * 1024)) ;;
+    MemAvailable:) mem_avail=$((val * 1024)) ;;
+    SwapTotal:) swap_total=$((val * 1024)) ;;
+    SwapFree:) swap_free=$((val * 1024)) ;;
+  esac
+done </proc/meminfo
+mem_used=$((mem_total - mem_avail))
+swap_used=$((swap_total - swap_free))
+
+# CPU package temperature: prefer a known CPU hwmon, else any thermal zone.
+temp=""
+for hw in /sys/class/hwmon/hwmon*; do
+  [[ -r $hw/name ]] || continue
+  read -r hwname <"$hw/name"
+  case $hwname in
+    coretemp | k10temp | zenpower | cpu_thermal | acpitz)
+      for f in "$hw"/temp1_input "$hw"/temp*_input; do
+        [[ -r $f ]] || continue
+        read -r temp <"$f"
+        break
+      done
+      ;;
+  esac
+  [[ -n $temp ]] && break
+done
+if [[ -z $temp && -r /sys/class/thermal/thermal_zone0/temp ]]; then
+  read -r temp </sys/class/thermal/thermal_zone0/temp
+fi
+[[ -n $temp ]] && temp=$((temp / 1000)) || temp=-1
+
+# Filesystems: real block-backed mounts only, primary listed first.
+disks=$(df -PB1 -x tmpfs -x devtmpfs -x squashfs -x overlay -x efivarfs 2>/dev/null |
+  awk -v primary="$DISK_PATH" 'NR>1 && $2>0 && !seen[$1]++ {
+    pct = int($3 * 1000 / $2)
+    mount = $6
+    for (c = 7; c <= NF; c++) mount = mount " " $c
+    gsub(/"/, "", mount)
+    entry = sprintf("{\"mount\":\"%s\",\"used\":%s,\"total\":%s,\"avail\":%s,\"pct\":%d}", mount, $3, $2, $4, pct)
+    if (mount == primary) first = entry; else rest = rest (rest ? "," : "") entry
+  }
+  END { printf "%s", (first ? first (rest ? "," rest : "") : rest) }')
+
+printf '{"cpu":%d,"memUsed":%d,"memTotal":%d,"memAvail":%d,"swapUsed":%d,"swapTotal":%d,"temp":%d,"rx":%d,"tx":%d,"disks":[%s]}\n' \
+  "$cpu_pct" "$mem_used" "$mem_total" "$mem_avail" "$swap_used" "$swap_total" "$temp" "$rx_rate" "$tx_rate" "$disks"
