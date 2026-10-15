@@ -154,15 +154,29 @@ Panel {
     return matches[0]
   }
 
+  // Third-party widgets get a capability-scoped shell API, whose
+  // mutateShellConfig refuses (returns false, never calls back) unless the
+  // plugin is a full bar. Their way to save is updateEntryInline, which
+  // replaces the entry's settings, so send the current ones with the patch.
+  function updateOwnEntry(patch) {
+    if (!bar || !bar.shell || typeof bar.shell.updateEntryInline !== "function") return false
+    var next = {}
+    var current = root.settings || ({})
+    for (var k in current) if (k !== "id") next[k] = current[k]
+    for (var p in patch) next[p] = patch[p]
+    return bar.shell.updateEntryInline(root.moduleName, next) !== false
+  }
+
   function applySettings(patch) {
     if (bar && bar.shell && typeof bar.shell.mutateShellConfig === "function") {
-      bar.shell.mutateShellConfig(function(config) {
+      var applied = bar.shell.mutateShellConfig(function(config) {
         var entry = root.findEntry(config)
         if (!entry) return
         for (var c in patch) entry[c] = patch[c]
       })
-      return
+      if (applied !== false) return
     }
+    if (root.updateOwnEntry(patch)) return
 
     // Fallback for a bar that does not expose the shell: the CLI stores
     // strings, which the coercion helpers above already tolerate.
@@ -187,14 +201,14 @@ Panel {
   // a popup click or an IPC call from any instance -- working off one truth.
   function applyMetricsMutation(mutate) {
     if (bar && bar.shell && typeof bar.shell.mutateShellConfig === "function") {
-      bar.shell.mutateShellConfig(function(config) {
+      var applied = bar.shell.mutateShellConfig(function(config) {
         var entry = root.findEntry(config)
         if (!entry) return
         var patch = mutate(root.entryMetrics(entry))
         if (!patch) return
         for (var k in patch) entry[k] = patch[k]
       })
-      return
+      if (applied !== false) return
     }
     var fallbackPatch = mutate(root.chosen.slice())
     if (fallbackPatch) root.applySettings(fallbackPatch)
